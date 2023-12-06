@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+import logging
 
 class xLights_Import_Model_Node:
     def __init__(self, model, strand, node, mapping ):
@@ -9,9 +10,11 @@ class xLights_Import_Model_Node:
 
 xLights_Import_Model_Nodes = []
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 def dump_xLights_Import_Model_Nodes():
     for i, xLights_Import_Model_Node in enumerate(xLights_Import_Model_Nodes, start=1):
-        print(f" ({i}) model {xLights_Import_Model_Node._model} mapped to {xLights_Import_Model_Node._mapping}")
+        logging.info(f" ({i}) model {xLights_Import_Model_Node._model} mapped to {xLights_Import_Model_Node._mapping}")
 
 def read_xml_file(file_path):
     try:
@@ -46,7 +49,7 @@ def find_tab(line):
     return line, ""
 
 def load_xmap_mapping(file_path):
-    print("load_xmap_mapping")
+    logging.info("load_xmap_mapping")
 
     try:
         with open(file_path, 'r') as file:
