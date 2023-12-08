@@ -1,119 +1,182 @@
-import xml.etree.ElementTree as ET
 import logging
+import xml.etree.ElementTree as ET
 
-class xLights_Import_Model_Node:
-    def __init__(self, model, strand, node, mapping ):
+
+class XlightsImportModelNode:
+    def __init__(self, model, strand, node, mapping):
         self._model = model
         self._strand = strand
         self._node = node
         self._mapping = mapping
 
-xLights_Import_Model_Nodes = []
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# Mapping pairs
 
-def dump_xLights_Import_Model_Nodes():
-    for i, xLights_Import_Model_Node in enumerate(xLights_Import_Model_Nodes, start=1):
-        logging.info(f" ({i}) model {xLights_Import_Model_Node._model} mapped to {xLights_Import_Model_Node._mapping}")
+xLightsImportModelNodes = []
+# All models from show
+DataViewItems = []
+model_groups = []
+models_info = []
+dest_models_info = []
 
-def read_xml_file(file_path):
-    try:
-        # Parse the XML file
-        tree = ET.parse(file_path)
-        root = tree.getroot()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-        # Process the XML data as needed
-        for element in root:
-            # Access element attributes, text, or other data
-            print(f"Element Name: {element.tag}")
-            print(f"Element Attributes: {element.attrib}")
-            print(f"Element Text: {element.text}")
-            print("\n")
 
-    except ET.ParseError as e:
-        print(f"Error parsing XML file: {e}")
+def dump_xlights_import_model_nodes():
+    for i, mn in enumerate(xLightsImportModelNodes, start=1):
+        logging.info(f" ({i}) model {mn._model} mapped to {mn._mapping}")
 
-def read_source(xml_file_path):
-    print("read_source")
-    #read_xml_file(xml_file_path)
+
+def read_rgbeffects(xml_file_path, mi):
+    logging.info("read_source()")
+    root = ET.parse(xml_file_path)
+
+    # Find the modelGroups element
+    model_group_elements = root.find(".//modelGroups")
+    if model_group_elements is not None:
+        for model_group_element in model_group_elements.findall("modelGroup"):
+            model_group_name = model_group_element.get("name")
+            model_group_models = model_group_element.get("models").split(",") if model_group_element.get("models") else []
+            model_groups.append({"name": model_group_name, "models": model_group_models})
+
+    # Display the extracted modelGroup names and models
+    for model_group in model_groups:
+        logging.debug(f"ModelGroup Name: {model_group['name']}")
+        logging.debug(f"Models: {model_group['models']}")
+
+    # Extract name and parm1 attributes from models
+
+    models_element = root.find(".//models")
+    if models_element is not None:
+        for model_element in models_element.findall("model"):
+            model_info = {
+                "name": model_element.get("name"),
+                "displayas": model_element.get("DisplayAs"),
+                "parm1": model_element.get("parm1"),
+                "parm2": model_element.get("parm2"),
+                "parm3": model_element.get("parm3"),
+                "pixelcount": int(model_element.get("parm1")) * int(model_element.get("parm2")),
+            }
+            mi.append(model_info)
+
+    # Display the extracted information
+    for model in mi:
+        logging.debug(f"Model Name: {model['name']}")
+        logging.debug(f"DisplayAs: {model['displayas']}")
+        logging.debug(f"Parm1: {model['parm1']}")
+        logging.debug(f"Parm2: {model['parm2']}")
+        logging.debug(f"Parm3: {model['parm3']}")
+        logging.debug(f"PixelCount: {model['pixelcount']}")
 def read_destination(xml_file_path):
-    print("read_destination()")
-    #read_xml_file(xml_file_path)
+    logging.info("read_destination()")
+
 
 def find_tab(line):
     for x in range(len(line)):
         if line[x] == '\t':
             first = line[:x]
-            line = line[x+1:]
+            line = line[x + 1:]
             return first, line
     return line, ""
 
+
 def load_xmap_mapping(file_path):
-    logging.info("load_xmap_mapping")
+    logging.info("load_xmap_mapping()")
 
     try:
         with open(file_path, 'r') as file:
-            firstline = file.readline().strip() ## ignore
+            firstline = file.readline().strip()  ## ignore
             count = int(file.readline().strip())
-            #print("Count = %d" % count)
+            logging.info("Count = %d" % count)
+            # Load in models
             for x in range(count):
                 mn = file.readline().strip()
-#                print("Line:", x, mn.strip())
+#                print("Line:", x, mn)
+                DataViewItems.append(mn)
 
+            logging.info(f"Total Models loaded {len(DataViewItems)}")
             line = file.readline().strip()
 
+            # Load in Mappings
             while line != "":
                 if line.count('\t') == 4:
                     model, line = find_tab(line)
                     strand, line = find_tab(line)
                     node, line = find_tab(line)
                     mapping, line = find_tab(line)
-                   # color = wx.Colour(find_tab(line))
+                    # color = wx.Colour(find_tab(line))
                 else:
                     model, line = find_tab(line)
-                    strand, line  = find_tab(line)
+                    strand, line = find_tab(line)
                     node, line = find_tab(line)
                     mapping, line = find_tab(line)
 
-                print(f"model: {model}, strand: {strand}, node: {node}, mapping: {mapping}")
-                xLights_Import_Model_Nodes.append( xLights_Import_Model_Node(model, strand, node, mapping))
-
+                #                print(f"model: {model}, strand: {strand}, node: {node}, mapping: {mapping}")
+                xLightsImportModelNodes.append(XlightsImportModelNode(model, strand, node, mapping))
                 line = file.readline().strip()
 
-            dump_xLights_Import_Model_Nodes()
+        logging.info(f"Total Lines loaded {len(xLightsImportModelNodes)}")
     except FileNotFoundError:
-        print(f"File '{file_path}' not found.")
+        logging.error(f"File '{file_path}' not found.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
+
+
+def save_xmap_mapping(file_path):
+    logging.info("save_xmap_mapping()")
+
+    with open(file_path, 'w') as file:
+        file.write('false\n')
+        file.write(str(len(DataViewItems)) + '\n')
+        # Dump out all mapped models
+
+        for model_model in DataViewItems:
+            file.write(f'{model_model}\n')
+        # Dump out all mapped models maps
+        for model_node in xLightsImportModelNodes:
+            if model_node._mapping != "":
+                file.write(f'{model_node._model}' +
+                           "\t" + model_node._strand +
+                           "\t" +
+                           "\t" + model_node._mapping +
+                           "\t" + "white" +
+                           "\n")
+            else:
+                file.write(f'{model_node._model}' +
+                           "\t" +
+                           "\t" +
+                           "\t" + model_node._mapping +
+                           "\t" + "white" +
+                           "\n")
+
 
 def process_files():
-    read_source("../../../Source Files/seed_data/SourceA/xlights_rgbeffects.xml")
-    read_destination("../../../Source Files/seed_data/Destination/xlights_rgbeffects.xml")
-    load_xmap_mapping("../../../Source Files/seed_data/SourceA/SourceA.xmap")
+    read_rgbeffects("../../../Source Files/seed_data/SourceC/xlights_rgbeffects.xml",  models_info)
+    read_rgbeffects("../../../Source Files/seed_data/Destination/xlights_rgbeffects.xml", dest_models_info)
+    #load_xmap_mapping("../../../Source Files/seed_data/SourceA/SourceA.xmap")
+    #save_xmap_mapping("../../../Source Files/seed_data/Output/generated.xmap")
+
 
 def read_prior_maps():
-    print("read_prior_maps")
+    logging.info("read_prior_maps")
+
 
 def identify_models():
-    print("identify_models")
+    logging.info("identify_models")
+
 
 def output_mapfile():
-    print("output_mapfile")
+    logging.info("output_mapfile")
+
 
 def map_exact():
-    print("map_exact")
+    logging.info("map_exact")
+
 
 def map_hints():
     print("map_hints")
 
 
-
-    
-import os
-
 if __name__ == "__main__":
     print("Starting app")
-    current_directory = os.getcwd()
-    print(f"Current Directory: {current_directory}")
-
     process_files()
