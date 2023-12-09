@@ -1,5 +1,8 @@
 import logging
+import random
 import xml.etree.ElementTree as ET
+
+from models import find_match
 
 
 class XlightsImportModelNode:
@@ -17,9 +20,12 @@ xLightsImportModelNodes = []
 DataViewItems = []
 model_groups = []
 models_info = []
-dest_models_info = []
+from_models_info = []
+mapping_info = []
+my_groups_info = []
+from_groups_info = []
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def dump_xlights_import_model_nodes():
@@ -27,7 +33,7 @@ def dump_xlights_import_model_nodes():
         logging.info(f" ({i}) model {mn._model} mapped to {mn._mapping}")
 
 
-def read_rgbeffects(xml_file_path, mi):
+def read_rgbeffects(xml_file_path, mi, mg):
     logging.info("read_source()")
     root = ET.parse(xml_file_path)
 
@@ -36,11 +42,12 @@ def read_rgbeffects(xml_file_path, mi):
     if model_group_elements is not None:
         for model_group_element in model_group_elements.findall("modelGroup"):
             model_group_name = model_group_element.get("name")
-            model_group_models = model_group_element.get("models").split(",") if model_group_element.get("models") else []
-            model_groups.append({"name": model_group_name, "models": model_group_models})
+            model_group_models = model_group_element.get("models").split(",") \
+                if model_group_element.get("models") else []
+            mg.append({"name": model_group_name, "models": model_group_models})
 
     # Display the extracted modelGroup names and models
-    for model_group in model_groups:
+    for model_group in mg:
         logging.debug(f"ModelGroup Name: {model_group['name']}")
         logging.debug(f"Models: {model_group['models']}")
 
@@ -57,6 +64,11 @@ def read_rgbeffects(xml_file_path, mi):
                 "parm3": model_element.get("parm3"),
                 "pixelcount": int(model_element.get("parm1")) * int(model_element.get("parm2")),
             }
+            # Never try to map to Images
+            if model_info['displayas'] == "Image":
+                continue
+            if model_info['displayas'] == "DmxMovingHead3D":
+                continue
             mi.append(model_info)
 
     # Display the extracted information
@@ -67,6 +79,8 @@ def read_rgbeffects(xml_file_path, mi):
         logging.debug(f"Parm2: {model['parm2']}")
         logging.debug(f"Parm3: {model['parm3']}")
         logging.debug(f"PixelCount: {model['pixelcount']}")
+
+
 def read_destination(xml_file_path):
     logging.info("read_destination()")
 
@@ -122,23 +136,52 @@ def load_xmap_mapping(file_path):
         logging.error(f"An error occurred: {e}")
 
 
+def create_mapping():
+    logging.info("create_mapping")
+# just for fun map something from source groups to dest groups
+    for group in my_groups_info:
+        random_pick = find_match("group", group, from_groups_info, from_models_info)
+        logging.info(f"Check random_pick {random_pick['name']}")
+        mappingnode = {
+            'model': group['name'],
+            'strand': "",
+            'node': "",
+            'mapping': random_pick['name']
+        }
+        mapping_info.append(mappingnode)
+# just for fun map something from source to dest
+    for model in models_info:
+        random_pick = find_match("model", model, from_groups_info, from_models_info)
+        mappingnode = {
+            'model': model['name'],
+            'strand': "",
+            'node': "",
+            'mapping': random_pick['name']
+        }
+        mapping_info.append(mappingnode)
+
+
 def save_xmap_mapping(file_path):
     logging.info("save_xmap_mapping()")
 
     with open(file_path, 'w') as file:
         file.write('false\n')
-        file.write(str(len(DataViewItems)) + '\n')
-        # Dump out all mapped models
+# Count
+        file.write(str(len(mapping_info) ) + '\n')
+        # Dump out all models
 
-        for model_model in DataViewItems:
-            file.write(f'{model_model}\n')
+# To Do .. only dump models that were mapped
+        for group in my_groups_info:
+            file.write(f"{group['name']}\n")
+        for model in models_info:
+            file.write(f"{model['name']}\n")
         # Dump out all mapped models maps
-        for model_node in xLightsImportModelNodes:
-            if model_node._mapping != "":
-                file.write(f'{model_node._model}' +
-                           "\t" + model_node._strand +
+        for model_node in mapping_info:
+            if model_node['mapping'] != "":
+                file.write(f"{model_node['model']}" +
+                           "\t" + model_node['strand'] +
                            "\t" +
-                           "\t" + model_node._mapping +
+                           "\t" + model_node['mapping'] +
                            "\t" + "white" +
                            "\n")
             else:
@@ -150,11 +193,28 @@ def save_xmap_mapping(file_path):
                            "\n")
 
 
+def dump_models():
+    logging.info("dump_models")
+    for model in models_info:
+        logging.info(f"Source Model: {model['name']}")
+
+
+def dump_from_models():
+    logging.info("dump_from_models")
+    for model in from_models_info:
+        logging.info(f"From Model: {model['name']}")
+
+
 def process_files():
-    read_rgbeffects("../../../Source Files/seed_data/SourceC/xlights_rgbeffects.xml",  models_info)
-    read_rgbeffects("../../../Source Files/seed_data/Destination/xlights_rgbeffects.xml", dest_models_info)
+    read_rgbeffects("../../../Source Files/seed_data/DestinationB/xlights_rgbeffects.xml",
+                    models_info, my_groups_info)
+    read_rgbeffects("../../../Source Files/seed_data/SourceB/xlights_rgbeffects.xml",
+                    from_models_info, from_groups_info)
+    #dump_models()
+    #dump_from_models()
     #load_xmap_mapping("../../../Source Files/seed_data/SourceA/SourceA.xmap")
-    #save_xmap_mapping("../../../Source Files/seed_data/Output/generated.xmap")
+    create_mapping()
+    save_xmap_mapping("../../../Source Files/seed_data/Output/generated.xmap")
 
 
 def read_prior_maps():
