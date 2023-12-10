@@ -19,7 +19,7 @@
     <model DisplayAs="Single Line" StringType="RGB Nodes" StartSide="B" Dir="L" Antialias="1" PixelSize="2" Transparency="0" parm1="1" parm2="50" parm3="1" Controller="No Controller" LayoutGroup="Default" name="Single Line-01" WorldPosX="40.8006" WorldPosY="425.4707" WorldPosZ="0.0000" X2="145.174194" Y2="0.948883" Z2="0.000000" versionNumber="5" StartChannel="595">
       <ControllerConnection Protocol="ws2811"/>
     </model>
-    <model DisplayAs="Star" StringType="RGB Nodes" Antialias="1" PixelSize="2" Transparency="0" parm1="1" parm2="50" name="Star" parm3="5" StarStartLocation="Bottom Ctr-CW" Controller="No Controller" LayoutGroup="Default" WorldPosX="71.3236" WorldPosY="665.0234" WorldPosZ="0.0000" ScaleX="1.0853" ScaleY="1.0990" ScaleZ="0.0000" RotateX="0.00000000" RotateY="0.00000000" RotateZ="0.00000000" versionNumber="5" StartChannel="745">
+    <model DisplayAs="Star" StringType="RGB Nodes" Antialias="1" PixelSize="2" Transparency="0" parm1="1" parm2="250" name="Star" parm3="5" StarStartLocation="Bottom Ctr-CW" Controller="No Controller" LayoutGroup="Default" WorldPosX="71.3236" WorldPosY="665.0234" WorldPosZ="0.0000" ScaleX="1.0853" ScaleY="1.0990" ScaleZ="0.0000" RotateX="0.00000000" RotateY="0.00000000" RotateZ="0.00000000" versionNumber="5" StartChannel="745">
       <ControllerConnection Protocol="ws2811"/>
     </model>
   </models>
