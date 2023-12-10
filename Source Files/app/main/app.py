@@ -137,26 +137,25 @@ def load_xmap_mapping(file_path):
 
 
 def create_mapping():
-    logging.info("create_mapping")
+    logging.info("create_mapping()")
 # just for fun map something from source groups to dest groups
     for group in my_groups_info:
-        random_pick = find_match("group", group, from_groups_info, from_models_info)
-        logging.info(f"Check random_pick {random_pick['name']}")
+        mappedNode = find_match("group", group, from_groups_info, from_models_info, xLightsImportModelNodes)
         mappingnode = {
             'model': group['name'],
             'strand': "",
             'node': "",
-            'mapping': random_pick['name']
+            'mapping': mappedNode['name']
         }
         mapping_info.append(mappingnode)
 # just for fun map something from source to dest
     for model in models_info:
-        random_pick = find_match("model", model, from_groups_info, from_models_info)
+        mappedNode = find_match("model", model, from_groups_info, from_models_info, xLightsImportModelNodes)
         mappingnode = {
             'model': model['name'],
             'strand': "",
             'node': "",
-            'mapping': random_pick['name']
+            'mapping': mappedNode['name']
         }
         mapping_info.append(mappingnode)
 
@@ -212,9 +211,47 @@ def process_files():
                     from_models_info, from_groups_info)
     #dump_models()
     #dump_from_models()
-    #load_xmap_mapping("../../../Source Files/seed_data/SourceA/SourceA.xmap")
+    load_xmap_mapping("../../../Source Files/seed_data/SourceB/SourceB.xmap")
     create_mapping()
     save_xmap_mapping("../../../Source Files/seed_data/Output/generated.xmap")
+
+
+def find_element(array, target):
+    """
+    Find the index of the target element in the array.
+
+    Parameters:
+    - array (list): The input array.
+    - target: The element to find in the array.
+
+    Returns:
+    - int: The index of the target element, or -1 if not found.
+    """
+    try:
+        index = array.index(target)
+        return index
+    except ValueError:
+        return -1
+
+
+def update_element(array, index, new_value):
+    """
+    Update the element at the specified index in the array.
+
+    Parameters:
+    - array (list): The input array.
+    - index (int): The index of the element to update.
+    - new_value: The new value to assign to the element.
+
+    Returns:
+    - list: The updated array.
+    """
+    if 0 <= index < len(array):
+        array[index] = new_value
+        return array
+    else:
+        print("Index out of range.")
+        return array
 
 
 def read_prior_maps():
@@ -235,7 +272,7 @@ def map_exact():
 
 def map_hints():
     print("map_hints")
-
+# scan thru xLightsImportModelNodes and make the mappings
 
 if __name__ == "__main__":
     print("Starting app")
