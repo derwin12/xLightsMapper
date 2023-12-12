@@ -129,6 +129,10 @@ def find_match(type, model, fgi, fmi, xLightsImportModelNodes):
             if val == None:
                 val = find_model_type(type, model, fgi, fmi)
                 if val == None:
+                    #+
+
+                    #if model_type is circle ... look for wreath or spinner?
+                    #
                     val = find_fuzzy(type, model, fgi, fmi)
                     if val == None:
                         val = find_111(type, model, fgi, fmi)

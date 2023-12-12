@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Props List</title>
+</head>
+<body>
+    <h1>Props List</h1>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Pixel Count</th>
+            <th>Model Type</th>
+            <th>Actions</th>
+        </tr>
+        {% for prop in props %}
+        <tr>
+            <td>{{ prop.name }}</td>
+            <td>{{ prop.pixelcount }}</td>
+            <td>{{ prop.modeltype }}</td>
+            <td>
+                <a href="{{ url_for('update_prop', id=prop.id) }}">Update</a>
+                <a href="{{ url_for('delete_prop', id=prop.id) }}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('add_prop') }}">Add New Prop</a>
+</body>
+</html>

@@ -13,3 +13,14 @@ Map one xlights Mapping File to Another
   <li>map groups to groups</li>
 </ol>
 
+i have 
+my wreath  its circle model  
+.. check for others that might have mapped "my wreath" circle model
+
+Need a repo of props 
+.. try to identify by type, pixels, submodels
+
+.. use local description as a hint guide to match to vendor [ppd wreath]
+. use alias to match
+
+

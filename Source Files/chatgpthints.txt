@@ -1,0 +1,26 @@
+================
+dict called model_data containing a model, mapping, pixelcount, strand, model_type
+where mapping is another model, strand is a string and model_type is one of (custom,circle,'single line','window frame')
+
+create a procedure to store unique (on all elements) a dict model_data that loads prior data and saves any new data once at the end, if it exists the increment a counter
+
+create a procedure to return all the entries for a given model
+===================
+
+comparable pixel count
+
+=====
+create a python web app and templates, that allows adding,updating and viewing props where a prop is made up of the following attributes (name, pixelcount, modeltype)
+create a script that can be used to create 10 rows of sample data
+the modeltype must be one of
+Arches
+Tree 360
+Candy Canes
+Circle
+Icicles
+Single Line
+Star
+
+===========
+create a script that dumps the current contents of the props.db so it can be created again using the generated python script
+=====

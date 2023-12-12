@@ -81,10 +81,6 @@ def read_rgbeffects(xml_file_path, mi, mg):
         logging.debug(f"PixelCount: {model['pixelcount']}")
 
 
-def read_destination(xml_file_path):
-    logging.info("read_destination()")
-
-
 def find_tab(line):
     for x in range(len(line)):
         if line[x] == '\t':
@@ -166,10 +162,10 @@ def save_xmap_mapping(file_path):
     with open(file_path, 'w') as file:
         file.write('false\n')
 # Count
-        file.write(str(len(mapping_info) ) + '\n')
+        file.write(str(len(mapping_info)) + '\n')
         # Dump out all models
 
-# To Do .. only dump models that were mapped
+# To Do: only dump models that were mapped
         for group in my_groups_info:
             file.write(f"{group['name']}\n")
         for model in models_info:
@@ -205,15 +201,27 @@ def dump_from_models():
 
 
 def process_files():
-    read_rgbeffects("../../../Source Files/seed_data/DestinationB/xlights_rgbeffects.xml",
+    read_rgbeffects("../seed_data/DestinationB/xlights_rgbeffects.xml",
                     models_info, my_groups_info)
-    read_rgbeffects("../../../Source Files/seed_data/SourceB/xlights_rgbeffects.xml",
+    read_rgbeffects("../seed_data/SourceB/xlights_rgbeffects.xml",
                     from_models_info, from_groups_info)
     #dump_models()
     #dump_from_models()
-    load_xmap_mapping("../../../Source Files/seed_data/SourceB/SourceB.xmap")
+    load_xmap_mapping("../seed_data/SourceB/SourceB.xmap")
+    load_xmap_history()
+    #if we loaded some xmap_hints
+    if len(xLightsImportModelNodes) > 0:
+        save_xmap_history()
     create_mapping()
-    save_xmap_mapping("../../../Source Files/seed_data/Output/generated.xmap")
+    save_xmap_mapping("../seed_data/Output/generated.xmap")
+
+
+def load_xmap_history():
+    logging.info("load_xmap_history()")
+
+
+def save_xmap_history():
+    logging.info("save_xmap_history()")
 
 
 def find_element(array, target):
@@ -272,7 +280,8 @@ def map_exact():
 
 def map_hints():
     print("map_hints")
-# scan thru xLightsImportModelNodes and make the mappings
+# scan through xLightsImportModelNodes and make the mappings
+
 
 if __name__ == "__main__":
     print("Starting app")

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Prop</title>
+</head>
+<body>
+    <h1>Add New Prop</h1>
+    <form method="post" action="{{ url_for('add_prop') }}">
+        <label for="name">Name:</label>
+        <input type="text" name="name" required><br>
+        <label for="pixelcount">Pixel Count:</label>
+        <input type="number" name="pixelcount" required><br>
+        <label for="modeltype">Model Type:</label>
+        <select name="modeltype" required>
+            <option value="Arches">Arches</option>
+            <option value="Tree 360">Tree 360</option>
+            <option value="Candy Canes">Candy Canes</option>
+            <option value="Circle">Circle</option>
+            <option value="Icicles">Icicles</option>
+            <option value="Single Line">Single Line</option>
+            <option value="Star">Star</option>
+        </select><br>
+        <input type="submit" value="Add Prop">
+    </form>
+    <br>
+    <a href="{{ url_for('index') }}">Back to Props List</a>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Prop</title>
+</head>
+<body>
+    <h1>Update Prop</h1>
+    <form method="post" action="{{ url_for('update_prop', id=prop.id) }}">
+        <label for="name">Name:</label>
+        <input type="text" name="name" value="{{ prop.name }}" required><br>
+        <label for="pixelcount">Pixel Count:</label>
+        <input type="number" name="pixelcount" value="{{ prop.pixelcount }}" required><br>
+        <label for="modeltype">Model Type:</label>
+        <select name="modeltype" required>
+            <option value="Arches" {% if prop.modeltype == 'Arches' %}selected{% endif %}>Arches</option>
+            <option value="Tree 360" {% if prop.modeltype == 'Tree 360' %}selected{% endif %}>Tree 360</option>
+            <option value="Candy Canes" {% if prop.modeltype == 'Candy Canes' %}selected{% endif %}>Candy Canes</option>
+            <option value="Circle" {% if prop.modeltype == 'Circle' %}selected{% endif %}>Circle</option>
+            <option value="Icicles" {% if prop.modeltype == 'Icicles' %}selected{% endif %}>Icicles</option>
+            <option value="Single Line" {% if prop.modeltype == 'Single Line' %}selected{% endif %}>Single Line</option>
+            <option value="Star" {% if prop.modeltype == 'Star' %}selected{% endif %}>Star</option>
+            <option value="Custom" {% if prop.modeltype == 'Custom' %}selected{% endif %}>Custom</option>
+        </select><br>
+        <input type="submit" value="Update Prop">
+    </form>
+    <br>
+    <a href="{{ url_for('index') }}">Back to Props List</a>
+</body>
+</html>
