@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 
 from models import find_match
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class XlightsImportModelNode:
     def __init__(self, model, strand, node, mapping):
