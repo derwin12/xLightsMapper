@@ -21,6 +21,6 @@ Need a repo of props
 .. try to identify by type, pixels, submodels
 
 .. use local description as a hint guide to match to vendor [ppd wreath]
-. use alias to match
+. use alias to match Vendor props
 
 

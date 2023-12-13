@@ -24,3 +24,5 @@ Star
 ===========
 create a script that dumps the current contents of the props.db so it can be created again using the generated python script
 =====
+what python code is required to create a sequential animation without using bars or chart lines, just the words of the possible string values being checked as one goes thru a list of possible string values that are stored in an array as you are looking for the best fit in python.
+close the animation when a match is found or at the end.

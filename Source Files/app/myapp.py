@@ -1,6 +1,9 @@
 import logging
-import random
+import re
+
 import xml.etree.ElementTree as ET
+
+from fetchmatch import match_prop
 
 from models import find_match
 
@@ -51,19 +54,35 @@ def read_rgbeffects(xml_file_path, mi, mg):
     for model_group in mg:
         logging.debug(f"ModelGroup Name: {model_group['name']}")
         logging.debug(f"Models: {model_group['models']}")
-
+    logging.debug(f"============")
     # Extract name and parm1 attributes from models
 
     models_element = root.find(".//models")
     if models_element is not None:
         for model_element in models_element.findall("model"):
+
+            if model_element.get("DisplayAs") == "Custom":
+                PixelCountStr = model_element.get("PixelCount")
+#                logging.debug(">>>>>" + model_element.get("name") + " " + model_element.get("DisplayAs") + ">>" + PixelCountStr + "<< " +
+ #                             model_element.get("parm1") + ":" + model_element.get("parm2") + ":" + model_element.get("parm3"))
+                if PixelCountStr:
+                    pixelcount = int(PixelCountStr)
+                else:
+                    pattern = "(\d+)"
+                    PixelStr = model_element.get("CustomModel")
+                    matches = re.findall(pattern, PixelStr)
+                    pixel_counts = [int(match) for match in matches]
+                    # Find the largest pixel count
+                    pixelcount = max(pixel_counts)
+            else:
+                pixelcount = int(model_element.get("parm1")) * int(model_element.get("parm2"))
             model_info = {
                 "name": model_element.get("name"),
-                "displayas": model_element.get("DisplayAs"),
+                "displayas": model_element.get("DisplayAs"), # ModelType
                 "parm1": model_element.get("parm1"),
                 "parm2": model_element.get("parm2"),
                 "parm3": model_element.get("parm3"),
-                "pixelcount": int(model_element.get("parm1")) * int(model_element.get("parm2")),
+                "pixelcount": pixelcount,
             }
             # Never try to map to Images
             if model_info['displayas'] == "Image":
@@ -74,12 +93,9 @@ def read_rgbeffects(xml_file_path, mi, mg):
 
     # Display the extracted information
     for model in mi:
-        logging.debug(f"Model Name: {model['name']}")
-        logging.debug(f"DisplayAs: {model['displayas']}")
-        logging.debug(f"Parm1: {model['parm1']}")
-        logging.debug(f"Parm2: {model['parm2']}")
-        logging.debug(f"Parm3: {model['parm3']}")
-        logging.debug(f"PixelCount: {model['pixelcount']}")
+        logging.debug(f"Model Name: {model['name']} " +
+                      f"DisplayAs: {model['displayas']} Parm1: {model['parm1']} Parm2: {model['parm2']} " +
+                      f"Parm3: {model['parm3']} PixelCount: {model['pixelcount']}")
 
 
 def find_tab(line):
@@ -148,13 +164,14 @@ def create_mapping():
 # just for fun map something from source to dest
     for model in models_info:
         mappedNode = find_match("model", model, from_groups_info, from_models_info, xLightsImportModelNodes)
-        mappingnode = {
-            'model': model['name'],
-            'strand': "",
-            'node': "",
-            'mapping': mappedNode['name']
-        }
-        mapping_info.append(mappingnode)
+        if mappedNode:
+            mappingnode = {
+                'model': model['name'],
+                'strand': "",
+                'node': "",
+                'mapping': mappedNode['name']
+            }
+            mapping_info.append(mappingnode)
 
 
 def save_xmap_mapping(file_path):
@@ -286,4 +303,16 @@ def map_hints():
 
 if __name__ == "__main__":
     print("Starting app")
+    model_type_to_search = "Circle"
+    pixel_count_to_search = 200
+
+    matching_prop = match_prop(model_type_to_search, pixel_count_to_search)
+    if matching_prop:
+        print(
+            f"Match found: Name={matching_prop.name}, "
+            f"Pixelcount={matching_prop.pixelcount}, "
+            f"Modeltype={matching_prop.modeltype}")
+    else:
+        print("No match found.")
+
     process_files()

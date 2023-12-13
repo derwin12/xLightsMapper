@@ -39,13 +39,20 @@ def find_exact(type, model, fgi, fmi, xLightsImportModelNodes):
 
 def find_model_type(type, model, fgi, fmi):
     """Compare model type to find potential match
-        go thru the possible matches to find the best one
+        go through the possible matches to find the best one
     """
     candidates = []
     for m in fmi:
         if model['displayas'] == m['displayas']:
-            logging.debug(f"FOUND MODEL TYPE Candidate! ({type}) {model['name']} #{model['pixelcount']} ({model['displayas']}) with {m['name']} #{m['pixelcount']}")
-            candidates.append(m)
+            if model['displayas'] == "Custom":
+                logging.debug(f"###POSSIBLE MODEL TYPE Candidate! ({type}) {model['name']} #{model['pixelcount']} ({model['displayas']}) with {m['name']} #{m['pixelcount']}")
+                # ToDo .. check more than pixelcount
+                if model['pixelcount'] == m['pixelcount']:
+                    logging.info(f"###POSSIBLE MODEL TYPE Candidate! ({type}) {model['name']} #{model['pixelcount']} "+
+                                 f"({model['displayas']}) with {m['name']} #{m['pixelcount']}")
+                    candidates.append(m)
+            else: # If same model type
+                candidates.append(m)
     if len(candidates) > 0:
         diff = 9999
         candidate = None
@@ -56,6 +63,8 @@ def find_model_type(type, model, fgi, fmi):
         logging.info(f"FOUND MODEL TYPE! ({type}) {model['name']} ({model['displayas']}) with {candidate['name']}")
         # Find one with the closest pixel count
         return candidate
+    else:
+        logging.info(f"no match for model type ({type}) {model['name']} ({model['displayas']}) with pixelcount {model['pixelcount']}")
     return None
 
 
@@ -122,8 +131,8 @@ def find_match(type, model, fgi, fmi, xLightsImportModelNodes):
             val = find_exact(type, model, fgi, fmi, xLightsImportModelNodes)
             if val == None:
                 val = find_model_type(type, model, fgi, fmi)
-                if val == None:
-                    val = random.choice(fgi)
+#                if val == None:
+ #                   val = random.choice(fgi)
     else:
         val = find_hint(model, xLightsImportModelNodes)
         if val == None:
@@ -139,8 +148,11 @@ def find_match(type, model, fgi, fmi, xLightsImportModelNodes):
                     if val == None:
                         val = find_111(type, model, fgi, fmi)
                         if val == None:
-                            logging.info(f"***NOT FOUND .. random! for {model['name']}")
-                            val = random.choice(fgi)
+                            logging.info(f"***NOT FOUND .. for {model['name']} with {model['pixelcount']} pixels")
+                            #val = random.choice(fgi)
     logging.debug(f"Groups {fgi}, Models {fmi}")
-    logging.info(f"find_match results: \"{model['name']}\" is mapped to \"{val['name']}\"")
+    if val:
+        logging.info(f"find_match results: \"{model['name']}\" is mapped to \"{val['name']}\"")
+    else:
+        logging.info(f"find_match results: \"{model['name']}\" NOT MAPPED!")
     return val
